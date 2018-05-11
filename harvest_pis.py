@@ -7,6 +7,7 @@ import logging
 import sys
 
 from bs4 import BeautifulSoup
+import bs4
 from nameparser import HumanName
 
 from utils import get_url
@@ -77,14 +78,18 @@ def get_profile(url):
     except IndexError:
         profile['photo'] = None
     # bio
-    try:
-        bio_spot = soup.find("h2", text="Biography")
-        profile['bio'] = "".join(
-            [h.text for h in [p for p in bio_spot.findNextSiblings('div')][0]]
-        )
-    except AttributeError:
-        import ipdb; ipdb.set_trace()
-        profile['bio'] = None
+    bio_spot = soup.find("h2", text="Biography")
+    bio_elems = [p for p in bio_spot.findNextSiblings('div')]
+    b = []
+    for elem in bio_elems:
+        for e in elem:
+            if isinstance(e, bs4.element.Tag):
+                b.append(e.text)
+            else:
+                b.append(e)
+
+    profile['bio'] = "".join(b)
+
     # research headings
     profile['research_interests'] = [
         ra.text for ra in soup.find("h2", text="Research Topics")
@@ -110,20 +115,11 @@ def get_profile(url):
 
 if __name__ == "__main__":
     people = get_people()
-    logging.info("Founc {}")
-    print(people)
     out = []
-    #profile = get_profile(sys.argv[1])
-
-    # with open(sys.argv[1]) as infile:
-    #     people = json.load(infile)
     for idx, person in enumerate(people):
         print(person['url'], file=sys.stderr)
         meta = get_profile(person['url'])
         out.append(meta)
-        #print json.dumps(meta, indent=2)
-        #if idx > 9:
-        #    break
         if idx > 2:
             break
     with open(sys.argv[1], 'w') as outf:

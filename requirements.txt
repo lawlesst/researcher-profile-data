@@ -1,0 +1,4 @@
+bs4
+nameparser
+requests
+requests_cache

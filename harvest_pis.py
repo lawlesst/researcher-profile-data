@@ -79,22 +79,28 @@ def get_profile(url):
         profile['photo'] = None
     # bio
     bio_spot = soup.find("h2", text="Biography")
-    bio_elems = [p for p in bio_spot.findNextSiblings('div')]
-    b = []
-    for elem in bio_elems:
-        for e in elem:
-            if isinstance(e, bs4.element.Tag):
-                b.append(e.text)
-            else:
-                b.append(e)
+    if bio_spot is not None:
+        bio_elems = [p for p in bio_spot.findNextSiblings('div')]
+        b = []
+        for elem in bio_elems:
+            for e in elem:
+                if isinstance(e, bs4.element.Tag):
+                    b.append(e.text)
+                else:
+                    b.append(e)
 
-    profile['bio'] = "".join(b)
+        profile['bio'] = "".join(b)
+    else:
+        profile['bio'] = None
 
     # research headings
-    profile['research_interests'] = [
-        ra.text for ra in soup.find("h2", text="Research Topics")
-        .findNextSiblings('div')[0].select('h3')
-    ]
+    try:
+        profile['research_interests'] = [
+            ra.text for ra in soup.find("h2", text="Research Topics")
+            .findNextSiblings('div')[0].select('h3')
+        ]
+    except AttributeError:
+        profile['research_interests'] = None
 
     profile['pmids'] = [
         pm.split('/')[-1] for pm in [
@@ -110,6 +116,9 @@ def get_profile(url):
     except IndexError:
         profile['website'] = None
 
+    # scientific focus areas
+    profile['scientific_focus_areas'] = [fa.text for fa in soup.select('div.sfa-text h3')]
+
     return profile
 
 
@@ -120,7 +129,5 @@ if __name__ == "__main__":
         print(person['url'], file=sys.stderr)
         meta = get_profile(person['url'])
         out.append(meta)
-        if idx > 2:
-            break
-    with open(sys.argv[1], 'w') as outf:
-        json.dump(out, outf, indent=2)
+
+    print(json.dumps(out, indent=2))

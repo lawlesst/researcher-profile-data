@@ -126,6 +126,7 @@ def get_profile(url):
 
 if __name__ == "__main__":
     people = get_people()
+    print("Found {} researchers.".format(len(people)))
     out = []
     for idx, person in enumerate(people):
         print(person['url'], file=sys.stderr)

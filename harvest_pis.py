@@ -62,9 +62,11 @@ def process_title(title):
 
 def get_profile(url):
     profile = {}
-    doc = get_url(url)
-    soup = BeautifulSoup(doc, "html.parser")
     profile['url'] = url
+    doc = get_url(url)
+    if doc is None:
+        return profile
+    soup = BeautifulSoup(doc, "html.parser")
     profile['name'] = soup.select('h1.pi-name')[0].text
     name = process_name(profile['name'])
     profile.update(name)
@@ -120,7 +122,6 @@ if __name__ == "__main__":
         print(person['url'], file=sys.stderr)
         meta = get_profile(person['url'])
         out.append(meta)
-        if idx > 2:
+        if idx > 20:
             break
-    with open(sys.argv[1], 'w') as outf:
-        json.dump(out, outf, indent=2)
+    print(json.dumps(out, indent=2))

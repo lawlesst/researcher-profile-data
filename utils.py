@@ -1,3 +1,5 @@
+import logging
+
 import requests
 import requests.packages.urllib3
 
@@ -13,6 +15,11 @@ def get_url(url):
     }
 
     response = requests.get(url, headers=headers)
-    if response.status_code != 200:
-        raise Exception("URL error: " + response.status_code)
+    if response.status_code == 200:
+        pass
+    elif response.status_code == 404:
+        logging.info("404 not found. {}".format(url))
+        return None
+    else:
+        raise Exception("URL error: " + str(response.status_code))
     return response.content

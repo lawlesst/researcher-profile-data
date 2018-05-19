@@ -1,4 +1,4 @@
-# Research profile data
+# Researcher profile data
 
 Scripts to harvest research profiles from the [NIH Intramural Research Program](https://irp.nih.gov/our-research/principal-investigators).
 
